@@ -1,0 +1,31 @@
+{
+	"name": "ms_pdf2jpg",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"start": "node index.js",
+		"dev": "nodemon index.js",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/fnaquira/ms_pdf2jpg.git"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/fnaquira/ms_pdf2jpg/issues"
+	},
+	"homepage": "https://github.com/fnaquira/ms_pdf2jpg#readme",
+	"dependencies": {
+		"body-parser": "^1.20.2",
+		"express": "^4.18.2",
+		"fs-extra": "^11.1.0",
+		"pdf2pic": "^2.1.4"
+	},
+	"devDependencies": {
+		"nodemon": "^2.0.20"
+	}
+}
