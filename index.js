@@ -4,6 +4,7 @@ const path = require("path");
 const { fromPath } = require("pdf2pic");
 const { writeFileSync, unlink } = require("fs-extra");
 const asyncForEach = require("asyncforeach_pe");
+const cors = require("cors"); // Importa el middleware cors
 
 const multer = require("multer");
 
@@ -27,6 +28,8 @@ const upload = multer({
 });
 
 const app = express();
+
+app.use(cors()); // Usa el middleware cors para todas las rutas
 
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }));
