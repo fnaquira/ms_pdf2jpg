@@ -1,5 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const fs = require("fs");
 const path = require("path");
 const { fromPath } = require("pdf2pic");
 const { writeFileSync, unlink } = require("fs-extra");
@@ -7,6 +8,7 @@ const asyncForEach = require("asyncforeach_pe");
 const cors = require("cors"); // Importa el middleware cors
 
 const multer = require("multer");
+const cron = require("node-cron");
 
 const storage = multer.diskStorage({
 	destination: function (req, file, cb) {
@@ -85,4 +87,32 @@ const port = 3000;
 
 app.listen(port, () => {
 	console.log(`Example app listening on port ${port}`);
+});
+
+const folderPath = "output";
+
+cron.schedule("31 * * * *", () => {
+	console.log("Deleting files");
+	// Obtener la fecha actual y restarle 3 horas
+	const currentDateTime = new Date();
+	const threeHoursAgo = new Date(currentDateTime.getTime() - 3 * 60 * 60 * 1000);
+	// Obtener la lista de archivos en la carpeta
+	fs.readdirSync(folderPath).forEach(async (file) => {
+		// Ignorar el archivo .gitignore
+		if (file === ".gitignore") {
+			return;
+		}
+
+		const filePath = path.join(folderPath, file);
+
+		// Obtener información sobre el archivo
+		const stats = fs.statSync(filePath);
+
+		// Verificar si la fecha de modificación es mayor a 3 horas
+		if (stats.ctime > threeHoursAgo) {
+			console.log(`El archivo ${file} tiene una antigüedad mayor a 3 horas.`);
+			// Aquí puedes realizar la lógica adicional que necesites con el archivo
+			await unlink(filePath);
+		}
+	});
 });
