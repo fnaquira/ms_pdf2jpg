@@ -22,7 +22,7 @@ const storage = multer.diskStorage({
 const upload = multer({
 	storage: storage,
 	fileFilter: function (req, file, cb) {
-		if (file.mimetype !== "application/pdf") {
+		if (!(file.mimetype == "application/pdf" || file.mimetype === "application/octet-stream")) {
 			return cb(new Error("Solo se permiten archivos de PDF"));
 		}
 		cb(null, true);
