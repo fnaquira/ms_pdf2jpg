@@ -76,6 +76,49 @@ app.post("/convertir", upload.single("pdf"), async (req, res) => {
 	});
 });
 
+app.post("/convertirlos", upload.array("pdfs"), async (req, res) => {
+	// Guardar el archivo PDF en la carpeta temporal
+	const pdfFiles = req.files;
+	const pdfFilenames = pdfFiles.map((file) => file.filename);
+	const tempFolder = "./temp";
+	const pdfPaths = pdfFilenames.map((filename) => path.join(tempFolder, filename));
+
+	const outputFolder = "./output";
+	const baseOptions = {
+		density: 100,
+		saveFolder: outputFolder,
+		format: "jpg",
+		width: 2480,
+		height: 3508,
+		timeout: 60000,
+	};
+
+	const convertPromises = pdfPaths.map((pdfPath) => fromPath(pdfPath, baseOptions).bulk(-1, true));
+	const outputsArray = await Promise.all(convertPromises);
+
+	const imagesResponse = pdfFiles.map((file) => {return {name:file.originalname,imgs:[]};});
+
+	// Escribir las imágenes en disco y devolver los nombres de archivo
+	const imagesArray = await Promise.all(
+		outputsArray.map(async (outputs, i) => {
+			const images = [];
+			await asyncForEach(outputs, (output) => {
+				const filename = `base64-${pdfFilenames[i]}.${output.page}.jpg`;
+				writeFileSync(outputFolder + "/" + filename, output.base64, "base64");
+				//images.push(filename);
+				imagesResponse[i].imgs.push(filename);
+			});
+			return images;
+		})
+	);
+
+	// Eliminar los archivos PDF temporales
+	await Promise.all(pdfPaths.map((pdfPath) => unlink(pdfPath)));
+
+	// Devolver los nombres de archivo de las imágenes generadas
+	res.json(imagesResponse);
+});
+
 app.get("/imagenes/:nombre", (req, res) => {
 	const nombreImagen = req.params.nombre;
 	const rutaImagen = path.join(__dirname, "output", nombreImagen);
