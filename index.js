@@ -6,6 +6,7 @@ const fs = require("fs");
 const path = require("path");
 const { fromPath } = require("pdf2pic");
 const { writeFileSync, unlink } = require("fs-extra");
+const logger = require('morgan');
 const asyncForEach = require("asyncforeach_pe");
 const cors = require("cors"); // Importa el middleware cors
 
@@ -32,6 +33,12 @@ const upload = multer({
 });
 
 const app = express();
+
+logger.token('remote-addr', function (req) {
+	return req.headers['x-real-ip'] || req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+});
+app.set('trust proxy', 1);
+app.use(logger(':method :remote-addr :url :status :response-time'));
 
 app.use(cors()); // Usa el middleware cors para todas las rutas
 
